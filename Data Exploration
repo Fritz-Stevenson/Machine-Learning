@@ -1,0 +1,130 @@
+import pandas as pd
+import numpy as np
+from sklearn import linear_model
+import seaborn as sns
+
+data = pd.read_csv('HepatitisCdata.csv')
+'''Now to clean the data. First, I am assigning numerical categories to them: 
+1 = asymptomatic/control group,  2 = Hepatitis C, 3 = Liver ailments without Hep C'''
+data['Category'].loc[data['Category'].isin(["0=Blood Donor", "0s=suspect Blood Donor"])] = 1
+data['Category'].loc[data['Category'] == "1=Hepatitis"] = 2
+data['Category'].loc[data['Category'].isin(["2=Fibrosis", "3=Cirrhosis"])] = 3
+# For now we are eliminating rows liver Disease without Hep C to add accuracy.
+hc_data = data[data['Category']!=3]
+# verify how many rows were eliminated
+print(len(hc_data.index))
+# Let's make sure that the Category column is numeric format.
+pd.to_numeric(data['Category'])
+# A null value will give us an error in the linear regression model in sklearn, lets get rid of rows with null values.
+data = data[data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]].notnull().all(1)]
+independent_v = data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]]
+'''To match the categorical boolean nature of our dependent variable (hepatitis C or healthy), lets make the x axis 
+boolean. We will do this by finding the outliers (+- 2 std): low or high and denoting their value 1. Normal values will have '''
+
+alb_mean = np.mean(data['ALB'])
+alb_med = np.median(data['ALB'])
+alb_std = np.std(data['ALB'])
+alb_le = np.median(data['ALB']) - (2 * alb_std)
+alb_ue = np.median(data['ALB']) + (2 * alb_std)
+
+print('alb', alb_mean, alb_med, alb_std, alb_le, alb_ue)
+
+prot_mean = np.mean(data['PROT'])
+prot_med = np.median(data['PROT'])
+prot_std = np.std(data['PROT'])
+prot_le = np.median(data['PROT']) - (2 * prot_std)
+prot_ue = np.median(data['PROT']) + (2 * prot_std)
+
+print('PROT', prot_mean, prot_med, prot_std, prot_le, prot_ue)
+
+crea_mean = np.mean(data['CREA'])
+crea_med = np.median(data['CREA'])
+crea_std = np.std(data['CREA'])
+crea_le = np.median(data['CREA']) - (2 * crea_std)
+crea_ue = np.median(data['CREA']) + (2 * crea_std)
+
+print('CREA', crea_mean, crea_med, crea_std, crea_le, crea_ue)
+
+ggt_mean = np.mean(data['GGT'])
+ggt_med = np.median(data['GGT'])
+ggt_std = np.std(data['GGT'])
+ggt_le = np.median(data['GGT']) - (2 * ggt_std)
+ggt_ue = np.median(data['GGT']) + (2 * ggt_std)
+
+print('GGT', ggt_mean, ggt_med, ggt_std, ggt_le, ggt_ue)
+
+bil_mean = np.mean(data['BIL'])
+bil_med = np.median(data['BIL'])
+bil_std = np.std(data['BIL'])
+bil_le = np.median(data['BIL']) - (2 * bil_std)
+bil_ue = np.median(data['BIL']) + (2 * bil_std)
+
+print('BIL', bil_mean, bil_med, bil_std, bil_le, bil_ue)
+
+chol_mean = np.mean(data['CHOL'])
+chol_med = np.median(data['CHOL'])
+chol_std = np.std(data['CHOL'])
+chol_le = np.median(data['CHOL']) - (2 * chol_std)
+chol_ue = np.median(data['CHOL']) + (2 * chol_std)
+
+print('CHOL', chol_mean, chol_med, chol_std, chol_le, chol_ue)
+
+che_mean = np.mean(data['CHE'])
+che_med = np.median(data['CHE'])
+che_std = np.std(data['CHE'])
+che_le = np.median(data['CHE']) - (2 * che_std)
+che_ue = np.median(data['CHE']) + (2 * che_std)
+
+print('CHE', che_mean, che_med, che_std, che_le, che_ue)
+
+alt_mean = np.mean(data['ALT'])
+alt_med = np.median(data['ALT'])
+alt_std = np.std(data['ALT'])
+alt_le = np.median(data['ALT']) - (2 * alt_std)
+alt_ue = np.median(data['ALT']) + (2 * alt_std)
+
+print('alt', alt_mean, alt_med, alt_std, alt_le, alt_ue)
+
+ast_mean = np.mean(data['AST'])
+ast_med = np.median(data['AST'])
+ast_std = np.std(data['AST'])
+ast_le = np.median(data['ALT']) - (2 * ast_std)
+ast_ue = np.median(data['ALT']) + (2 * alt_std)
+
+print('ast', ast_mean, ast_med, ast_std, ast_le, ast_ue)
+
+X = data['Category'].values.reshape(-1,1)
+Y = data['AST'].values.reshape(-1,1)
+Y2 = data['GGT'].values.reshape(-1,1)
+Y3 = data['CREA'].values.reshape(-1,1)
+Y4 = data['CHOL'].values.reshape(-1,1)
+Y5 = data['CHE'].values.reshape(-1,1)
+Y6 = data['BIL'].values.reshape(-1,1)
+Y7 = data['ALT'].values.reshape(-1,1)
+Y8 = data['ALB'].values.reshape(-1,1)
+Y9 = data['PROT'].values.reshape(-1,1)
+
+
+lm = linear_model.LinearRegression()
+#model = lm.fit(X, Y)
+#print('p score for Aspartate Transaminase\n', lm.score(X, Y), '\n\n')
+#model = lm.fit(X, Y2)
+#print('p score for Gamma-Glutamyl Transferase\n', lm.score(X, Y2), '\n')
+#model = lm.fit(X, Y3)
+#print('p score for Creatine\n', lm.score(X, Y3), '\n')
+#model = lm.fit(X, Y4)
+#print('p score for Cholesterol\n', lm.score(X, Y4), '\n')
+#model = lm.fit(X, Y5)
+#print('p score for Acetylcholinesterase\n', lm.score(X, Y5), '\n')
+#model = lm.fit(X, Y6)
+#print('p score for Bilirubin\n', lm.score(X, Y6), '\n')
+#model = lm.fit(X, Y7)
+#print('p score for Alanine Transaminase\n', lm.score(X, Y7), '\n')
+#model = lm.fit(X, Y8)
+#print('p score for Albumin Blood Test\n', lm.score(X, Y8), '\n')
+#model = lm.fit(X, Y9)
+#print('p score for Proteins\n', lm.score(X, Y9), '\n')
+data = data[['Category', 'PROT', 'CREA']]
+sns.pairplot(data, hue='Category')
+from matplotlib import pyplot as plt
+plt.show()
