@@ -5,7 +5,9 @@ import seaborn as sns
 
 data = pd.read_csv('HepatitisCdata.csv')
 '''Now to clean the data. First, I am assigning numerical categories to them: 
-1 = asymptomatic/control group,  2 = Hepatitis C, 3 = Liver ailments without Hep C'''
+1 = asymptomatic/control group,  2 = Hepatitis C, 3 = Liver ailments beyond simply Hep C. I have conglomerated the categories here for simplicity and accuracy's sake.
+Due to sparsenss of data, larger groupings will give more accuracy for predictions'''
+
 data['Category'].loc[data['Category'].isin(["0=Blood Donor", "0s=suspect Blood Donor"])] = 1
 data['Category'].loc[data['Category'] == "1=Hepatitis"] = 2
 data['Category'].loc[data['Category'].isin(["2=Fibrosis", "3=Cirrhosis"])] = 3
@@ -18,8 +20,11 @@ pd.to_numeric(data['Category'])
 # A null value will give us an error in the linear regression model in sklearn, lets get rid of rows with null values.
 data = data[data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]].notnull().all(1)]
 independent_v = data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]]
-'''To match the categorical boolean nature of our dependent variable (hepatitis C or healthy), lets make the x axis 
-boolean. We will do this by finding the outliers (+- 2 std): low or high and denoting their value 1. Normal values will have '''
+
+
+
+'''In the following lines, I print the general data measures for each blood work testing field this is to get a rough idea of the distribution, mean/median and variance
+of each field to possibly narrow down the scope of critical variables.'''
 
 alb_mean = np.mean(data['ALB'])
 alb_med = np.median(data['ALB'])
@@ -92,39 +97,51 @@ ast_le = np.median(data['ALT']) - (2 * ast_std)
 ast_ue = np.median(data['ALT']) + (2 * alt_std)
 
 print('ast', ast_mean, ast_med, ast_std, ast_le, ast_ue)
+#Many variables have an abnormal distribution and a large standard deviation, with much of the data having a right skew.
 
-X = data['Category'].values.reshape(-1,1)
-Y = data['AST'].values.reshape(-1,1)
-Y2 = data['GGT'].values.reshape(-1,1)
-Y3 = data['CREA'].values.reshape(-1,1)
-Y4 = data['CHOL'].values.reshape(-1,1)
-Y5 = data['CHE'].values.reshape(-1,1)
-Y6 = data['BIL'].values.reshape(-1,1)
-Y7 = data['ALT'].values.reshape(-1,1)
-Y8 = data['ALB'].values.reshape(-1,1)
-Y9 = data['PROT'].values.reshape(-1,1)
-
-
-lm = linear_model.LinearRegression()
-#model = lm.fit(X, Y)
-#print('p score for Aspartate Transaminase\n', lm.score(X, Y), '\n\n')
-#model = lm.fit(X, Y2)
-#print('p score for Gamma-Glutamyl Transferase\n', lm.score(X, Y2), '\n')
-#model = lm.fit(X, Y3)
-#print('p score for Creatine\n', lm.score(X, Y3), '\n')
-#model = lm.fit(X, Y4)
-#print('p score for Cholesterol\n', lm.score(X, Y4), '\n')
-#model = lm.fit(X, Y5)
-#print('p score for Acetylcholinesterase\n', lm.score(X, Y5), '\n')
-#model = lm.fit(X, Y6)
-#print('p score for Bilirubin\n', lm.score(X, Y6), '\n')
-#model = lm.fit(X, Y7)
-#print('p score for Alanine Transaminase\n', lm.score(X, Y7), '\n')
-#model = lm.fit(X, Y8)
-#print('p score for Albumin Blood Test\n', lm.score(X, Y8), '\n')
-#model = lm.fit(X, Y9)
-#print('p score for Proteins\n', lm.score(X, Y9), '\n')
+#limit the scope of data to view distribution and difference between asymptomatic and symptomatic individuals in a finer and more visual format
+# for the sake of brevity, we have only displayed a couple fields, and the combinations are endless.
 data = data[['Category', 'PROT', 'CREA']]
 sns.pairplot(data, hue='Category')
 from matplotlib import pyplot as plt
 plt.show()
+
+
+# Below we treat the data to be fit into sklearn's linear_model
+Y = data['Category'].values.reshape(-1,1)
+X = data['AST'].values.reshape(-1,1)
+X2 = data['GGT'].values.reshape(-1,1)
+X3 = data['CREA'].values.reshape(-1,1)
+X4 = data['CHOL'].values.reshape(-1,1)
+X5 = data['CHE'].values.reshape(-1,1)
+X6 = data['BIL'].values.reshape(-1,1)
+X7 = data['ALT'].values.reshape(-1,1)
+X8 = data['ALB'].values.reshape(-1,1)
+X9 = data['PROT'].values.reshape(-1,1)
+
+
+lm = linear_model.LinearRegression()
+model = lm.fit(X, Y)
+print('p score for Aspartate Transaminase\n', lm.score(X, Y), '\n\n')
+model = lm.fit(X2, Y)
+print('p score for Gamma-Glutamyl Transferase\n', lm.score(X2, Y), '\n')
+model = lm.fit(X3, Y)
+print('p score for Creatine\n', lm.score(X3, Y), '\n')
+model = lm.fit(X4, Y)
+print('p score for Cholesterol\n', lm.score(X4, Y), '\n')
+model = lm.fit(X5, Y)
+print('p score for Acetylcholinesterase\n', lm.score(X5, Y), '\n')
+model = lm.fit(X6, Y)
+print('p score for Bilirubin\n', lm.score(X6, Y), '\n')
+model = lm.fit(X7, Y)
+print('p score for Alanine Transaminase\n', lm.score(X7, Y), '\n')
+model = lm.fit(X8, Y)
+print('p score for Albumin Blood Test\n', lm.score(X8, Y), '\n')
+model = lm.fit(X9, Y)
+print('p score for Proteins\n', lm.score(X9, Y), '\n')
+'''Single variable correlation of each factor is quite low, with none of their R values reaching above 10%. Nor does multivariable regression provide any clear relation.
+With a small sample size and a good amount of variation for both asymptomatic and symptomatic individuals, this is not unexpected. This does not mean we can't gain insight or
+perform predictive modelling with the dataset. From here we will move to the Predictive Modelling step of the process in the file of the same name in this repository. 
+SKLEARN's model_selection and neighbors models will be used to train and predict the liver function of individuals based on blood test data.'''
+
+
