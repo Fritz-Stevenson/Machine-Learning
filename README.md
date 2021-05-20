@@ -8,7 +8,7 @@
 Taken from Kaggle.com, this data set is curated by UCI in Cleveland
 https://www.kaggle.com/ronitf/heart-disease-uci
 
-*Evaluation:
+**Evaluation:**
 With only 303 rows, this is a small dataset,but the spread between target labels 0(no heart disease) and 1(heart disease) is fairly even.
 Also, with 14 columns there is a lot of depth to analyze our dataset with.
 
@@ -45,3 +45,10 @@ Our benchmark goal will be 95% accuracy
 * slope =the slope of the peak exercise ST segment
 * number of major vessels (0-3) colored by flourosopy (ca)
 * thal: 3 = normal; 6 = fixed defect; 7 = reversable defect
+
+## Project Takeaways:
+
+![Alt text](https://github.com/Fritz-Stevenson/Heart-Disease-ML-Project/blob/main/Feature-and-Label-Comparison.jpg?raw=true)
+
+
+![Alt text](https://github.com/Fritz-Stevenson/Heart-Disease-ML-Project/blob/main/Variable-Correlation-Matrix.jpg?raw=true)
