@@ -1,0 +1,62 @@
+import pandas as pd
+import numpy as np
+from sklearn import linear_model, metrics
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+def initial_prediction():
+    # First we will use the data that has been cleaned in the same fashion as the Data Exploration step of the project
+    data = pd.read_csv('HepatitisCdata.csv')
+    data['Category'].loc[data['Category'].isin(["0=Blood Donor", "0s=suspect Blood Donor"])] = 1
+    data['Category'].loc[data['Category'].isin(["1=Hepatitis", "2=Fibrosis", "3=Cirrhosis"])] = 2
+    data = data[data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]].notnull().all(1)]
+
+    # Now we will set up the variables for the predictive model in the required format
+    y_pred = data['Category']
+    y_pred = y_pred.astype('int')
+    x_pred = data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]].values
+
+    # Variables for train and test set values can be created. The test_size variable is a critical kwarg that will determine the train set and the success of model,
+    x_train, x_test, y_train, y_test = train_test_split(x_pred, y_pred, test_size=0.2)
+    '''n_neighbors is set at a relatively high value, as the sparseness of the data requires more comparisons for each item.
+    The brute force algorithm was chosen as it tolerates a high n_neighbors value and typically thrives off of small data_sets.'''
+    kn = KNeighborsClassifier(n_neighbors=6, algorithm='brute')
+    # Next is to train the data set 
+    kn.fit(x_train, y_train)
+    predicted_results = kn.predict(x_test)
+    # Here we print the accuracy of our model's predictions as compared to the actual y axis results.
+    return metrics.accuracy_score(y_test, predicted_results)
+prediction_accuracies = []
+avg_prediction_accuracy = sum(prediction_accuracies)/len(prediction_accuracies
+for i in range(10)
+    accuracy = initial_prediction()
+    prediction_accuracy.append(float(accuracy))
+print(f'Initial prediction model's average accuracy over 10 iterations: {avg_prediction_accuracy}')
+# This gives good predictive accuracy between tests: roughly 93-96% accuracy.
+
+'''This would be a baseline of insight; there would be a high likelihood of the patient having some liver ailment, but there would be some uncertainty to the progression 
+of the liver damage present. For a more detailed prediction, we need to return the categories to their division between (just) hepatitis c, fibrosis, and cirrhosis. Afterward,
+the sklearn modelling will be repeated.'''
+def detailed_prediction()
+    full_data = pd.read_csv('HepatitisCdata.csv')
+    full_data['Category'].loc[full_data['Category'].isin(["0=Blood Donor", "0s=suspect Blood Donor"])] = 0
+    full_data['Category'].loc[full_data['Category'] == "1=Hepatitis"] = 1 
+    full_data['Category'].loc[full_data['Category'] == "2=Fibrosis"] = 2
+    full_data['Category'].loc[full_data['Category'] == "3=Cirrhosis"] = 3
+    full_data = full_data[full_data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]].notnull().all(1)]
+
+
+    y_full_pred = full_data['Category']
+    y_full_pred = y_pred.astype('int')
+    x_full_pred = full_data[["ALB", "ALT", "AST", "BIL", "CHE", "CHOL", "CREA", "GGT", "PROT"]].values
+
+    x_train, x_test, y_train, y_test = train_test_split(x_full_pred, y_full_pred, test_size=0.2)
+    kn = KNeighborsClassifier(n_neighbors=6, algorithm='brute')
+    kn.fit(x_train, y_train)
+    predicted_results = kn.predict(x_test)
+    return metrics.accuracy_score(y_test, predicted_results)
+prediction_accuracies = []
+avg_prediction_accuracy = sum(prediction_accuracies)/len(prediction_accuracies
+for i in range(10)
+    accuracy = detailed_prediction()
+    prediction_accuracy.append(float(accuracy))
+print(f'Detailed prediction model's average accuracy over 10 iterations: {avg_prediction_accuracy}')
